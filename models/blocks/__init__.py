@@ -4,7 +4,12 @@ from .head import BoundaryHead, SaliencyHead
 from .transformer import BottleneckTransformer, BottleneckTransformerLayer
 
 __all__ = [
-    'QueryDecoder', 'QueryGenerator', 'CrossModalEncoder', 'UniModalEncoder',
-    'BoundaryHead', 'SaliencyHead', 'BottleneckTransformer',
-    'BottleneckTransformerLayer'
+    "QueryDecoder",
+    "QueryGenerator",
+    "CrossModalEncoder",
+    "UniModalEncoder",
+    "BoundaryHead",
+    "SaliencyHead",
+    "BottleneckTransformer",
+    "BottleneckTransformerLayer",
 ]

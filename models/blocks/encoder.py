@@ -2,30 +2,24 @@
 
 import torch
 import torch.nn as nn
-from nncore.nn import (MODELS, build_linear_modules, build_model,
-                       build_norm_layer)
+from nncore.nn import MODELS, build_linear_modules, build_model, build_norm_layer
 from vit_pytorch import SimpleViT
 
 
 @MODELS.register()
 class UniModalEncoder(nn.Module):
-
-    def __init__(self,
-                 dims=None,
-                 p=0.5,
-                 pos_cfg=None,
-                 enc_cfg=None,
-                 norm_cfg=None,
-                 **kwargs):
+    def __init__(
+        self, dims=None, p=0.5, pos_cfg=None, enc_cfg=None, norm_cfg=None, **kwargs
+    ):
         super(UniModalEncoder, self).__init__()
 
-        drop_cfg = dict(type='drop', p=p) if p > 0 else None
+        drop_cfg = dict(type="drop", p=p) if p > 0 else None
         enc_dims = dims[-1] if isinstance(dims, (list, tuple)) else dims
 
         self.dropout = build_norm_layer(drop_cfg)
         self.mapping = build_linear_modules(dims, **kwargs)
         self.pos_enc = build_model(pos_cfg, enc_dims)
-        self.encoder = build_model(enc_cfg, enc_dims, bundler='sequential')
+        self.encoder = build_model(enc_cfg, enc_dims, bundler="sequential")
         self.norm = build_norm_layer(norm_cfg, enc_dims)
 
     def forward(self, x, **kwargs):
@@ -43,22 +37,19 @@ class UniModalEncoder(nn.Module):
 
 @MODELS.register()
 class SimpleViTEncoderLayer(nn.Module):
-
-    def __init__(self,
-                 dims,
-                 **kwargs):
+    def __init__(self, dims, **kwargs):
         super(SimpleViTEncoderLayer, self).__init__()
 
         # num_classes is irrelevant because we are removing the head
         # TODO: Fix these values to make them work as if they were TransformerEncoderLayer
         v = SimpleViT(
-            image_size=dims[0]/2,
+            image_size=dims[0] / 2,
             patch_size=2,
             num_classes=1000,
             dim=dims[1],
             depth=1,
             heads=8,  # Same number of heads as TransformerEncoderLayer
-            mlp_dim=4 * dims[1]
+            mlp_dim=4 * dims[1],
         )
 
         # Remove the classification head
@@ -72,18 +63,19 @@ class SimpleViTEncoderLayer(nn.Module):
 
 @MODELS.register()
 class CrossModalEncoder(nn.Module):
-
-    def __init__(self,
-                 dims=None,
-                 fusion_type='sum',
-                 pos_cfg=None,
-                 enc_cfg=None,
-                 norm_cfg=None,
-                 **kwargs):
+    def __init__(
+        self,
+        dims=None,
+        fusion_type="sum",
+        pos_cfg=None,
+        enc_cfg=None,
+        norm_cfg=None,
+        **kwargs
+    ):
         super(CrossModalEncoder, self).__init__()
-        assert fusion_type in ('sum', 'mean', 'concat')
+        assert fusion_type in ("sum", "mean", "concat")
 
-        map_dims = [2 * dims, dims] if fusion_type == 'concat' else None
+        map_dims = [2 * dims, dims] if fusion_type == "concat" else None
         self.fusion_type = fusion_type
 
         self.pos_enc = build_model(pos_cfg, dims)
@@ -95,8 +87,8 @@ class CrossModalEncoder(nn.Module):
         if self.encoder is not None:
             pe = None if self.pos_enc is None else self.pos_enc(a)
             a, b = self.encoder(a, b, pe=pe, **kwargs)
-        if self.fusion_type in ('sum', 'mean'):
-            x = (a + b) / ((self.fusion_type == 'mean') + 1)
+        if self.fusion_type in ("sum", "mean"):
+            x = (a + b) / ((self.fusion_type == "mean") + 1)
         else:
             x = torch.cat((a, b), dim=-1)
             x = self.mapping(x)

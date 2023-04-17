@@ -3,4 +3,4 @@ from .qvhighlights import QVHighlights
 from .tvsum import TVSum
 from .youtube import YouTubeHighlights
 
-__all__ = ['CharadesSTA', 'QVHighlights', 'TVSum', 'YouTubeHighlights']
+__all__ = ["CharadesSTA", "QVHighlights", "TVSum", "YouTubeHighlights"]

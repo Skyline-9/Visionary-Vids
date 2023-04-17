@@ -11,15 +11,9 @@ from .utils import TVSUM_SPLITS
 
 @DATASETS.register()
 class TVSum(Dataset):
-
     SPLITS = TVSUM_SPLITS
 
-    def __init__(self,
-                 domain,
-                 label_path,
-                 video_path,
-                 audio_path,
-                 query_path=None):
+    def __init__(self, domain, label_path, video_path, audio_path, query_path=None):
         assert domain in self.SPLITS
 
         self.domain = domain
@@ -30,9 +24,9 @@ class TVSum(Dataset):
 
         self.label = nncore.load(label_path)
 
-        video = nncore.join(video_path, '{}_rgb.npy')
-        optic = nncore.join(video_path, '{}_opt.npy')
-        audio = nncore.join(audio_path, '{}.npy')
+        video = nncore.join(video_path, "{}_rgb.npy")
+        optic = nncore.join(video_path, "{}_opt.npy")
+        audio = nncore.join(audio_path, "{}.npy")
 
         self.video = {k: nncore.load(video.format(k)) for k in self.label}
         self.optic = {k: nncore.load(optic.format(k)) for k in self.label}
@@ -40,10 +34,10 @@ class TVSum(Dataset):
 
         self.video_id = {
             k: [s for s in self.SPLITS[domain][k] if s in self.label]
-            for k in ('train', 'val')
+            for k in ("train", "val")
         }
 
-        self.set_state('train')
+        self.set_state("train")
 
     def __len__(self):
         return len(self.video_id[self.state])
@@ -58,16 +52,17 @@ class TVSum(Dataset):
         data = dict(
             video=DataContainer(video[:num_clips]),
             audio=DataContainer(audio[:num_clips]),
-            saliency=DataContainer(saliency[:num_clips], pad_value=-1))
+            saliency=DataContainer(saliency[:num_clips], pad_value=-1),
+        )
 
         if self.query_path is not None:
             query = self.get_query(idx)
-            data['query'] = DataContainer(query, pad_value=float('inf'))
+            data["query"] = DataContainer(query, pad_value=float("inf"))
 
         return data
 
     def set_state(self, state):
-        self.state = 'train' if state == 'train' else 'val'
+        self.state = "train" if state == "train" else "val"
 
     def get_video_id(self, idx):
         return self.video_id[self.state][idx]
@@ -84,12 +79,12 @@ class TVSum(Dataset):
 
     def get_query(self, idx):
         video_id = self.get_video_id(idx)
-        query = nncore.load(nncore.join(self.query_path, f'{video_id}.npz'))
-        return torch.from_numpy(query['token']).float()
+        query = nncore.load(nncore.join(self.query_path, f"{video_id}.npz"))
+        return torch.from_numpy(query["token"]).float()
 
     def get_saliency(self, idx):
         video_id = self.get_video_id(idx)
-        saliency = torch.Tensor(self.label[video_id]['anno'])
+        saliency = torch.Tensor(self.label[video_id]["anno"])
         return (saliency.sum(dim=1) - 20) / 80
 
     def evaluate(self, blob, k=5, **kwargs):
@@ -99,12 +94,12 @@ class TVSum(Dataset):
         for i in range(20):
             video_ap = []
 
-            for idx, score in enumerate(blob['saliency']):
+            for idx, score in enumerate(blob["saliency"]):
                 inds = torch.argsort(score[0], descending=True)
 
                 video_id = self.get_video_id(idx)
-                label = torch.Tensor(self.label[video_id]['anno'])[:, i]
-                label = torch.where(label > label.median(), 1.0, .0)
+                label = torch.Tensor(self.label[video_id]["anno"])[:, i]
+                label = torch.where(label > label.median(), 1.0, 0.0)
                 label = label[inds].tolist()[:k]
 
                 if (num_gt := sum(label)) == 0:

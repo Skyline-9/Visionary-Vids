@@ -4,8 +4,10 @@ model = dict(
     audio_enc=dict(dims=[2048, 256]),
     query_gen=dict(dims=[300, 256]),
     pred_head=dict(
-        type='BoundaryHead',
+        type="BoundaryHead",
         dims=[256, 1],
         unit=1 / 6,
-        window_loss=dict(type='L1Loss', loss_weight=0.05),
-        offset_loss=dict(type='L1Loss', loss_weight=0.5)))
+        window_loss=dict(type="L1Loss", loss_weight=0.05),
+        offset_loss=dict(type="L1Loss", loss_weight=0.5),
+    ),
+)

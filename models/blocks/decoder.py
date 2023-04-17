@@ -2,17 +2,15 @@
 
 import torch
 import torch.nn as nn
-from nncore.nn import (MODELS, build_linear_modules, build_model,
-                       build_norm_layer)
+from nncore.nn import MODELS, build_linear_modules, build_model, build_norm_layer
 
 
 @MODELS.register()
 class QueryGenerator(nn.Module):
-
     def __init__(self, dims=None, p=0.3, enc_cfg=None, **kwargs):
         super(QueryGenerator, self).__init__()
 
-        drop_cfg = dict(type='drop', p=p) if p > 0 else None
+        drop_cfg = dict(type="drop", p=p) if p > 0 else None
         enc_dims = dims[-1] if isinstance(dims, (list, tuple)) else dims
 
         self.dropout = build_norm_layer(drop_cfg)
@@ -35,13 +33,12 @@ class QueryGenerator(nn.Module):
 
 @MODELS.register()
 class QueryDecoder(nn.Module):
-
     def __init__(self, dims=None, pos_cfg=None, dec_cfg=None, norm_cfg=None):
         super(QueryDecoder, self).__init__()
 
         self.q_pos_enc = build_model(pos_cfg, dims)
         self.k_pos_enc = build_model(pos_cfg, dims)
-        self.decoder = build_model(dec_cfg, dims, bundler='modulelist')
+        self.decoder = build_model(dec_cfg, dims, bundler="modulelist")
         self.norm = build_norm_layer(norm_cfg, dims)
 
     def forward(self, x, mem=None, **kwargs):

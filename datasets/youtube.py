@@ -10,19 +10,18 @@ from .utils import YOUTUBE_SPLITS
 
 @DATASETS.register()
 class YouTubeHighlights(TVSum):
-
     SPLITS = YOUTUBE_SPLITS
 
     def get_saliency(self, idx):
         video_id = self.get_video_id(idx)
-        saliency = [1 if s > 0 else 0 for s in self.label[video_id]['match']]
+        saliency = [1 if s > 0 else 0 for s in self.label[video_id]["match"]]
         return torch.Tensor(saliency)
 
     def evaluate(self, blob, **kwargs):
         blob = nncore.to_dict_of_list(blob)
         collected = []
 
-        for idx, score in enumerate(blob['saliency']):
+        for idx, score in enumerate(blob["saliency"]):
             inds = torch.argsort(score[0], descending=True)
             label = self.get_saliency(idx)[inds].tolist()
 

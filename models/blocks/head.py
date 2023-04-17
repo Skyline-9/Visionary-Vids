@@ -8,23 +8,24 @@ from nncore.nn import MODELS, build_linear_modules, build_loss
 
 @MODELS.register()
 class SaliencyHead(nn.Module):
-
-    def __init__(self,
-                 dims,
-                 pred_indices=None,
-                 loss_indices=None,
-                 saliency_loss=dict(type='DynamicBCELoss', loss_weight=1.0),
-                 **kwargs):
+    def __init__(
+        self,
+        dims,
+        pred_indices=None,
+        loss_indices=None,
+        saliency_loss=dict(type="DynamicBCELoss", loss_weight=1.0),
+        **kwargs,
+    ):
         super(SaliencyHead, self).__init__()
 
         self.saliency_pred = build_linear_modules(dims, **kwargs)
         self.saliency_loss = build_loss(saliency_loss)
 
-        self.pred_indices = pred_indices or (-1, )
+        self.pred_indices = pred_indices or (-1,)
         self.loss_indices = loss_indices or self.pred_indices
 
     def forward(self, inputs, data, output, mode):
-        mask = torch.where(data['saliency'] >= 0, 1, 0)
+        mask = torch.where(data["saliency"] >= 0, 1, 0)
 
         pred_indices = [idx % len(inputs) for idx in self.pred_indices]
         loss_indices = [idx % len(inputs) for idx in self.loss_indices]
@@ -37,30 +38,32 @@ class SaliencyHead(nn.Module):
                 saliency = saliency_pred.sigmoid() * mask
                 out.append(saliency)
 
-            if mode != 'test' and i in loss_indices:
-                output[f'd{i}.saliency_loss'] = self.saliency_loss(
-                    saliency_pred, data['saliency'], weight=mask)
+            if mode != "test" and i in loss_indices:
+                output[f"d{i}.saliency_loss"] = self.saliency_loss(
+                    saliency_pred, data["saliency"], weight=mask
+                )
 
-        output['_out']['saliency'] = (sum(out) / len(out)).detach().cpu()
+        output["_out"]["saliency"] = (sum(out) / len(out)).detach().cpu()
         return output
 
 
 @MODELS.register()
 class BoundaryHead(nn.Module):
-
-    def __init__(self,
-                 dims,
-                 radius_factor=0.2,
-                 sigma_factor=0.2,
-                 kernel=1,
-                 unit=2,
-                 max_num_moments=100,
-                 pred_indices=None,
-                 loss_indices=None,
-                 center_loss=dict(type='GaussianFocalLoss', loss_weight=1.0),
-                 window_loss=dict(type='L1Loss', loss_weight=0.1),
-                 offset_loss=dict(type='L1Loss', loss_weight=1.0),
-                 **kwargs):
+    def __init__(
+        self,
+        dims,
+        radius_factor=0.2,
+        sigma_factor=0.2,
+        kernel=1,
+        unit=2,
+        max_num_moments=100,
+        pred_indices=None,
+        loss_indices=None,
+        center_loss=dict(type="GaussianFocalLoss", loss_weight=1.0),
+        window_loss=dict(type="L1Loss", loss_weight=0.1),
+        offset_loss=dict(type="L1Loss", loss_weight=1.0),
+        **kwargs,
+    ):
         super(BoundaryHead, self).__init__()
 
         self.center_pred = build_linear_modules(dims, **kwargs)
@@ -76,7 +79,7 @@ class BoundaryHead(nn.Module):
         self.kernel = kernel
         self.unit = unit
         self.max_num_moments = max_num_moments
-        self.pred_indices = pred_indices or (-1, )
+        self.pred_indices = pred_indices or (-1,)
         self.loss_indices = loss_indices or self.pred_indices
 
     def get_targets(self, boundary, num_clips):
@@ -111,7 +114,7 @@ class BoundaryHead(nn.Module):
                 end = min(center_int + radius + 1, num_clips)
 
                 kernel = torch.arange(start - center_int, end - center_int)
-                kernel = (-kernel**2 / (2 * sigma**2)).exp()
+                kernel = (-(kernel**2) / (2 * sigma**2)).exp()
                 heatmap[start:end] = kernel
 
                 center_tgt[batch_id] = torch.max(center_tgt[batch_id], heatmap)
@@ -143,7 +146,7 @@ class BoundaryHead(nn.Module):
         return boundary
 
     def forward(self, inputs, data, output, mode):
-        mask = torch.where(data['saliency'] >= 0, 1, 0)
+        mask = torch.where(data["saliency"] >= 0, 1, 0)
 
         pred_indices = [idx % len(inputs) for idx in self.pred_indices]
         loss_indices = [idx % len(inputs) for idx in self.loss_indices]
@@ -155,29 +158,22 @@ class BoundaryHead(nn.Module):
             offset_pred = self.offset_pred(x).squeeze(-1)
 
             if i in pred_indices:
-                boundary = self.get_boundary(center_pred, window_pred,
-                                             offset_pred)
+                boundary = self.get_boundary(center_pred, window_pred, offset_pred)
                 out.append(boundary)
 
-            if mode != 'test' and i in loss_indices:
-                tgts = self.get_targets(data['boundary'], mask.size(1))
+            if mode != "test" and i in loss_indices:
+                tgts = self.get_targets(data["boundary"], mask.size(1))
                 center_tgt, window_tgt, offset_tgt, weight, avg_factor = tgts
 
-                output[f'd{i}.center_loss'] = self.center_loss(
-                    center_pred,
-                    center_tgt,
-                    weight=mask,
-                    avg_factor=avg_factor)
-                output[f'd{i}.window_loss'] = self.window_loss(
-                    window_pred,
-                    window_tgt,
-                    weight=weight,
-                    avg_factor=avg_factor)
-                output[f'd{i}.offset_loss'] = self.offset_loss(
-                    offset_pred,
-                    offset_tgt,
-                    weight=weight,
-                    avg_factor=avg_factor)
+                output[f"d{i}.center_loss"] = self.center_loss(
+                    center_pred, center_tgt, weight=mask, avg_factor=avg_factor
+                )
+                output[f"d{i}.window_loss"] = self.window_loss(
+                    window_pred, window_tgt, weight=weight, avg_factor=avg_factor
+                )
+                output[f"d{i}.offset_loss"] = self.offset_loss(
+                    offset_pred, offset_tgt, weight=weight, avg_factor=avg_factor
+                )
 
-        output['_out']['boundary'] = torch.cat(out, dim=1).detach().cpu()
+        output["_out"]["boundary"] = torch.cat(out, dim=1).detach().cpu()
         return output
