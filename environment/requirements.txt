@@ -1,0 +1,6 @@
+nncore>=0.3.6
+torch>=2.0.0
+torchvision
+torchtext
+scikit-learn
+vit-pytorch
