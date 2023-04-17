@@ -12,3 +12,4 @@ dependencies:
   - pip:
       - nncore
       - vit-pytorch
+      - pre-commit

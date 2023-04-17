@@ -4,3 +4,4 @@ torchvision
 torchtext
 scikit-learn
 vit-pytorch
+pre-commit

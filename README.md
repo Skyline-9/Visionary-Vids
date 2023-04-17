@@ -39,6 +39,12 @@ Using pip
 pip install -r environment/requirements.txt
 ```
 
+3. Setup automatic code styling
+
+```shell
+pre-commit install
+```
+
 ## Getting Started
 
 ### Download and prepare the datasets
