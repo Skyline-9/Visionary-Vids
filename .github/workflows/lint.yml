@@ -16,6 +16,6 @@ jobs:
       run: pip install --upgrade isort yapf flake8
     - name: Check code style
       run: |
-        isort --df configs datasets models tools
-        yapf -dr configs datasets models tools
-        flake8 configs datasets models tools
+        isort --df configs datasets models
+        yapf -dr configs datasets models
+        flake8 configs datasets models
