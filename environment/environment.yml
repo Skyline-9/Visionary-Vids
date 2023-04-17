@@ -1,0 +1,14 @@
+name: VisionaryVids
+channels:
+  - pytorch
+  - defaults
+dependencies:
+  - pip=23.0.1=py310hecd8cb5_0
+  - python=3.10.10=h218abb5_2
+  - pytorch=2.0.0=py3.10_0
+  - torchvision
+  - torchtext
+  - scikit-learn
+  - pip:
+      - nncore
+      - vit-pytorch
