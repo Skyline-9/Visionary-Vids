@@ -6,7 +6,7 @@ model = dict(
     video_enc=dict(
         type="UniModalEncoder",
         dims=[2048, 256],
-        pos_cfg=dict(type="PositionalEncoding"),
+        pos_cfg=dict(type="SinCosPositionalEncoding"),
         enc_cfg=dict(type="TransformerEncoderLayer"),
     ),
     audio_enc=dict(
