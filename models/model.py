@@ -31,8 +31,6 @@ class UMT(nn.Module):
         self.apply(lambda m: xavier_init_(m) if isinstance(m, nn.Linear) else None)
 
     def forward(self, data, mode):
-        print("CRY")
-        print(data["video"].shape)
         mask = torch.where(data["saliency"] >= 0, 1, 0)
 
         if self.video_enc is not None:

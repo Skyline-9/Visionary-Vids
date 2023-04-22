@@ -31,14 +31,10 @@ class UniModalEncoder(nn.Module):
         self.norm = build_norm_layer(norm_cfg, enc_dims)
 
     def forward(self, x, **kwargs):
-        print("this is value of x shape BEFORE REREE", x.shape)
-
         if self.dropout is not None:
             x = self.dropout(x)
         if self.mapping is not None:
             x = self.mapping(x)
-
-        print("this is value of x shape", x.shape)
 
         if self.encoder is not None:
             pe = None if self.pos_enc is None else self.pos_enc(x)
@@ -52,7 +48,7 @@ class UniModalEncoder(nn.Module):
 @nncore.bind_getter("dims", "learnable", "p", "max_len")
 class SinCosPositionalEncoding(nn.Module):
     """
-    Positional Encoding introduced in [1].
+    SinCosPositional Encoding as referenced in Better plain ViT baselines for ImageNet-1k
 
     Args:
         dims (int): The input feature dimensions.
@@ -61,41 +57,41 @@ class SinCosPositionalEncoding(nn.Module):
         p (float, optional): The dropout probability. Default: ``0.1``.
         max_len (int, optional): The maximum length of the input sequence.
             Default: ``5000``.
-
-    References:
-        1. Vaswani et al. (https://arxiv.org/abs/1706.03762)
     """
 
-    def __init__(self, dims, learnable=True, p=0.1, max_len=5000):
+    def __init__(self, dims, p=0.1, max_len=5000, temperature=10000):
         super(SinCosPositionalEncoding, self).__init__()
 
         self._dims = dims
-        self._learnable = learnable
         self._p = p
         self._max_len = max_len
+        self._temperature = temperature
 
-        if learnable:
-            self.pe = Parameter(1, max_len, dims)
-        else:
-            pos = torch.arange(max_len).unsqueeze(1)
-            div1 = torch.exp(torch.arange(0, dims, 2) * -(math.log(10000.0) / dims))
-            div2 = torch.exp(torch.arange(1, dims, 2) * -(math.log(10000.0) / dims))
-            pe = torch.zeros(1, max_len, dims)
-            pos_enc = torch.zeros(max_len, dims)
-            pos_enc[:, 0::2] = torch.sin(pos * div1)
-            pos_enc[:, 1::2] = torch.cos(pos * div2)
-            pe[0, :, :] = pos_enc
-            self.register_buffer("pe", pe)
+        omega = torch.arange(dims // 4) / (dims // 4 - 1)
+        omega = 1.0 / (temperature**omega)
+
+        y, x = torch.meshgrid(torch.arange(max_len), torch.arange(dims // 4))
+        y = y.flatten()[:, None] * omega[None, :]
+        x = x.flatten()[:, None] * omega[None, :]
+
+        pe = torch.cat((x.sin(), x.cos(), y.sin(), y.cos()), dim=1)
+
+        self.register_buffer("pe", pe)
 
         self.dropout = nn.Dropout(p=p)
 
     def __repr__(self):
-        return "{}(dims={}, learnable={}, p={}, max_len={})".format(
-            self.__class__.__name__, self._dims, self._learnable, self._p, self._max_len
+        return "{}(dims={}, p={}, max_len={}, temperature={})".format(
+            self.__class__.__name__,
+            self._dims,
+            self._p,
+            self._max_len,
+            self._temperature,
         )
 
     def forward(self, x):
-        pe = self.pe[:, : x.size(1)].repeat(x.size(0), 1, 1)
+        pe = self.pe[: x.size(1), :].unsqueeze(0)
+        pe = pe.repeat(x.size(0), 1, 1)
         pe = self.dropout(pe)
         return pe
 
