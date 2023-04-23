@@ -9,9 +9,7 @@ from nncore.nn import (
     build_linear_modules,
     build_model,
     build_norm_layer,
-    Parameter,
 )
-from vit_pytorch import SimpleViT
 
 
 @MODELS.register()
