@@ -25,7 +25,7 @@ def parse_args():
 
 def main():
     torch._dynamo.config.log_level = logging.ERROR
-    
+
     args = parse_args()
     cfg = nncore.Config.from_file(args.config)
 
