@@ -4,6 +4,7 @@ import argparse
 
 import nncore
 import torch
+import torch._dynamo
 from nncore.engine import Engine, comm, set_random_seed
 from nncore.engine.hooks import TensorboardWriter
 from nncore.nn import build_model
@@ -23,6 +24,8 @@ def parse_args():
 
 
 def main():
+    torch._dynamo.config.log_level = logging.ERROR
+    
     args = parse_args()
     cfg = nncore.Config.from_file(args.config)
 
