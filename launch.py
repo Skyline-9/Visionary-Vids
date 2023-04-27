@@ -1,6 +1,7 @@
 # Copyright (c) THL A29 Limited, a Tencent company. All rights reserved.
 
 import argparse
+import logging
 
 import nncore
 import torch
