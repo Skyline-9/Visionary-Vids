@@ -93,7 +93,10 @@ Run the following command to train a model using a specified config.
 python launch.py ${path-to-config}
 
 # Multiple GPUs
-torchrun --nproc_per_node=${num-gpus} tools/launch.py ${path-to-config}
+torchrun --nproc_per_node=${num-gpus} launch.py ${path-to-config}
+
+# Train from checkpoint
+python launch.py ${path-to-config} --checkpoint ${path-to-checkpoint}
 ```
 
 ### Test a model and evaluate results
