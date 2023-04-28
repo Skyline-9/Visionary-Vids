@@ -1,6 +1,6 @@
 # runtime settings
 
-from lion import Lion
+from optimizers.lion import Lion
 
 stages = dict(
     epochs=100,

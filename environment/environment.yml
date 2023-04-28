@@ -12,3 +12,4 @@ dependencies:
   - pip:
       - nncore
       - pre-commit
+      - x_transformers

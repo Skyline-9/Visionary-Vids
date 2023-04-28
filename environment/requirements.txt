@@ -4,3 +4,4 @@ torchvision
 torchtext
 scikit-learn
 pre-commit
+x_transformers

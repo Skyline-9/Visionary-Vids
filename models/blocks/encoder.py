@@ -4,12 +4,14 @@ import math
 import nncore
 import torch
 import torch.nn as nn
+import x_transformers.x_transformers
 from nncore.nn import (
     MODELS,
     build_linear_modules,
     build_model,
     build_norm_layer,
 )
+from x_transformers import Encoder
 
 
 @MODELS.register()
@@ -92,6 +94,41 @@ class SinCosPositionalEncoding(nn.Module):
         pe = pe.repeat(x.size(0), 1, 1)
         pe = self.dropout(pe)
         return pe
+
+
+@MODELS.register()
+class XTransformerEncoderLayer(Encoder):
+    def __init__(self, dim, depth=1, **kwargs):
+        super(XTransformerEncoderLayer, self).__init__(dim=dim, depth=depth, **kwargs)
+
+    def forward(
+        self,
+        x,
+        context=None,
+        pe=None,
+        mask=None,
+        context_mask=None,
+        attn_mask=None,
+        self_attn_context_mask=None,
+        mems=None,
+        return_hiddens=False,
+    ):
+        if pe is not None:
+            x += pe
+
+        if mask is not None:
+            mask = mask.bool()
+
+        return super(XTransformerEncoderLayer, self).forward(
+            x,
+            context=context,
+            mask=mask,
+            context_mask=context_mask,
+            attn_mask=attn_mask,
+            self_attn_context_mask=self_attn_context_mask,
+            mems=mems,
+            return_hiddens=return_hiddens,
+        )
 
 
 @MODELS.register()

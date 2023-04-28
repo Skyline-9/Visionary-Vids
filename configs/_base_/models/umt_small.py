@@ -7,13 +7,13 @@ model = dict(
         type="UniModalEncoder",
         dims=[2048, 256],
         pos_cfg=dict(type="SinCosPositionalEncoding"),
-        enc_cfg=dict(type="TransformerEncoderLayer"),
+        enc_cfg=dict(type="XTransformerEncoderLayer"),
     ),
     audio_enc=dict(
         type="UniModalEncoder",
         dims=[2048, 256],
         pos_cfg=dict(type="PositionalEncoding"),
-        enc_cfg=dict(type="TransformerEncoderLayer"),
+        enc_cfg=dict(type="XTransformerEncoderLayer"),
     ),
     cross_enc=dict(
         type="CrossModalEncoder",
