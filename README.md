@@ -51,10 +51,10 @@ pre-commit install
 
 1. Download and extract the datasets.
 
-- [QVHighlights](https://connectpolyu-my.sharepoint.com/:u:/g/personal/21039533r_connect_polyu_hk/EVyfPQmNEfxCpvWO3Lp-6NkBld4GHGH8sPj1ZVkx4ScKNg?e=LRS0gQ)
-- [Charades-STA](https://connectpolyu-my.sharepoint.com/:u:/g/personal/21039533r_connect_polyu_hk/EXq0dTx1exhBimH1S4JDqtoBt2hj2gC3tazWHMMaBDNK8Q?e=9pIeav)
-- [YouTube Highlights](https://connectpolyu-my.sharepoint.com/:u:/g/personal/21039533r_connect_polyu_hk/EWv-_88eTGZJr0VwUp51NbABbcQe8BBM4VWOipghje79aQ?e=MbJpgn)
-- [TVSum](https://connectpolyu-my.sharepoint.com/:u:/g/personal/21039533r_connect_polyu_hk/ESH3Wx6l-kBGmRvf2dfplesBaq4SJp9SxKyYypEO7UKVOA?e=1Naroo)
+- [QVHighlights](https://huggingface.co/yeliudev/UMT/resolve/main/datasets/qvhighlights-a8559488.zip)
+- [Charades-STA](https://huggingface.co/yeliudev/UMT/resolve/main/datasets/charades-2c9f7bab.zip)
+- [YouTube Highlights](https://huggingface.co/yeliudev/UMT/resolve/main/datasets/youtube-8a12ff08.zip)
+- [TVSum](https://huggingface.co/yeliudev/UMT/resolve/main/datasets/tvsum-ec05ad4e.zip)
 
 2. Prepare the files in the following structure.
 
